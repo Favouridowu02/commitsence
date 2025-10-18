@@ -1,0 +1,48 @@
+{
+  "name": "commitsense",
+  "version": "0.1.0",
+  "description": "Generate professional, semantic commit messages from your git diff using LLMs (OpenRouter/OpenAI).",
+  "bin": {
+    "commitsense": "./bin/commitsense"
+  },
+  "author": "Favour Idowu",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourname/commitsense.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourname/commitsense/issues"
+  },
+  "homepage": "https://github.com/yourname/commitsense#readme",
+  "keywords": [
+    "git",
+    "commit",
+    "conventional-commits",
+    "cli",
+    "openai",
+    "openrouter",
+    "huggingface",
+    "llama",
+    "devx"
+  ],
+  "scripts": {
+    "start": "node ./bin/commitsense",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "cross-spawn": "^7.0.3",
+    "dotenv": "^16.4.5",
+    "minimist": "^1.2.8",
+    "openai": "^4.56.0"
+  }
+}

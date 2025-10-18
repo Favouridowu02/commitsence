@@ -1,0 +1,9 @@
+node_modules/
+.env
+.env.*
+.env.local
+.env.development*
+.env.production*
+dist/
+coverage/
+npm-debug.log
