@@ -3,8 +3,45 @@
 require('dotenv').config();
 const { execSync, spawnSync } = require('child_process');
 const minimist = require('minimist');
-const path = require('path');
 const openaiClient = require('./openai');
+
+// Constants
+const MAX_DIFF_CHARS = 60_000;
+const DEFAULT_MODEL = process.env.COMMITSENSE_MODEL || 'gpt-4o-mini';
+
+// Small helpers
+const clamp = (num, min, max, dflt) => {
+  const n = Number.isFinite(num) ? num : dflt;
+  return Math.min(max, Math.max(min, n));
+};
+const sanitizeModel = (m) => {
+  if (!m) return undefined;
+  const ok = /^[A-Za-z0-9._\-\/]+$/.test(m);
+  return ok ? m.slice(0, 100) : undefined;
+};
+const isInGitRepo = () => {
+  try {
+    const out = execSync('git rev-parse --is-inside-work-tree', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+    return out && out.trim() === 'true';
+  } catch (_) {
+    return false;
+  }
+};
+const getDiff = (staged) => {
+  let diff = '';
+  try {
+    if (staged) {
+      diff = execSync('git diff --staged', { encoding: 'utf8' });
+    }
+  } catch (_) {}
+  if (!diff) {
+    diff = execSync('git diff', { encoding: 'utf8' });
+  }
+  if (diff.length > MAX_DIFF_CHARS) {
+    diff = diff.slice(0, MAX_DIFF_CHARS) + '\n\n...diff truncated...';
+  }
+  return diff;
+};
 
 const argv = minimist(process.argv.slice(2), {
   boolean: ['staged', 'conventional', 'emoji', 'commit', 'dry-run'],
@@ -16,34 +53,12 @@ async function run() {
   try {
     const staged = argv.staged || false;
 
-    // Ensure we're in a git repository
-    let isGit = false;
-    try {
-      const out = execSync('git rev-parse --is-inside-work-tree', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
-      isGit = out && out.trim() === 'true';
-    } catch (e) {
-      isGit = false;
-    }
-
-    if (!isGit) {
+    if (!isInGitRepo()) {
       console.error('Not a git repository. Run commitsense from the root of a git repository.');
       process.exit(1);
     }
 
-    let diff = '';
-    try {
-      if (staged) {
-        diff = execSync('git diff --staged', { encoding: 'utf8' });
-      }
-    } catch (e) {
-      // ignore and try unstaged
-      diff = '';
-    }
-
-    if (!diff) {
-      // fallback to unstaged diff
-      diff = execSync('git diff', { encoding: 'utf8' });
-    }
+    const diff = getDiff(staged);
 
     if (!diff) {
       console.log('No changes found (staged or unstaged).');
@@ -57,22 +72,11 @@ async function run() {
     }
 
     // Validate and clamp inputs
-    const clamp = (num, min, max, dflt) => {
-      const n = Number.isFinite(num) ? num : dflt;
-      return Math.min(max, Math.max(min, n));
-    };
-    const sanitizeModel = (m) => {
-      if (!m) return undefined;
-      // allow alphanum, dashes, slashes, dots
-      const ok = /^[A-Za-z0-9._\-\/]+$/.test(m);
-      return ok ? m.slice(0, 100) : undefined;
-    };
-
     const promptOpts = {
       diff,
       conventional: !!argv.conventional,
       emoji: !!argv.emoji,
-      model: sanitizeModel(argv.model) || process.env.COMMITSENSE_MODEL || 'gpt-4o-mini',
+      model: sanitizeModel(argv.model) || DEFAULT_MODEL,
       maxTokens: clamp(parseInt(argv['max-tokens'], 10), 16, 400, 100),
       temperature: clamp(parseFloat(argv.temperature), 0, 1, 0.2)
     };

@@ -1,34 +1,37 @@
-// Using OpenAI official SDK v4
+// OpenAI SDK v4 client
 const OpenAI = require('openai');
 
-// Provider autodetection (priority: OpenRouter -> OpenAI)
+// Autodetect provider (OpenRouter > OpenAI)
 let provider = 'none';
 let client = null;
-
-if (process.env.OPENROUTER_API_KEY) {
-  // Optional attribution headers for OpenRouter rankings
-  const defaultHeaders = {};
-  if (process.env.OPENROUTER_SITE_URL) defaultHeaders['HTTP-Referer'] = process.env.OPENROUTER_SITE_URL;
-  if (process.env.OPENROUTER_SITE_NAME) defaultHeaders['X-Title'] = process.env.OPENROUTER_SITE_NAME;
-
-  client = new OpenAI({
-    apiKey: process.env.OPENROUTER_API_KEY,
-    baseURL: 'https://openrouter.ai/api/v1',
-    // defaultHeaders is supported by the SDK for custom headers
-    ...(Object.keys(defaultHeaders).length ? { defaultHeaders } : {})
-  });
-  provider = 'openrouter';
-} else if (process.env.OPENAI_API_KEY) {
-  client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-  provider = 'openai';
-}
+const buildClient = () => {
+  if (process.env.OPENROUTER_API_KEY) {
+    const headers = {};
+    if (process.env.OPENROUTER_SITE_URL) headers['HTTP-Referer'] = process.env.OPENROUTER_SITE_URL;
+    if (process.env.OPENROUTER_SITE_NAME) headers['X-Title'] = process.env.OPENROUTER_SITE_NAME;
+    provider = 'openrouter';
+    return new OpenAI({ apiKey: process.env.OPENROUTER_API_KEY, baseURL: 'https://openrouter.ai/api/v1', ...(Object.keys(headers).length ? { defaultHeaders: headers } : {}) });
+  }
+  if (process.env.OPENAI_API_KEY) {
+    provider = 'openai';
+    return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  }
+  return null;
+};
+client = buildClient();
 
 // Optional provider adapters
 let hfAdapter = null;
+let proxyAdapter = null;
 try {
   hfAdapter = require('./providers/huggingface');
 } catch (e) {
   hfAdapter = null;
+}
+try {
+  proxyAdapter = require('./providers/proxy');
+} catch (e) {
+  proxyAdapter = null;
 }
 
 function buildPrompt({ diff, conventional, emoji }) {
@@ -56,6 +59,12 @@ function buildPrompt({ diff, conventional, emoji }) {
 async function suggestCommit({ diff, conventional = false, emoji = false, model = 'gpt-4o-mini', maxTokens = 100, temperature = 0.2 }) {
   const system = `You are CommitSense, an assistant that generates a single-line git commit message from a git diff.`;
   const user = buildPrompt({ diff, conventional, emoji });
+  // If a hosted proxy is configured, use it first (no keys required by end user)
+  if (process.env.COMMITSENSE_PROXY_URL && proxyAdapter) {
+    const combined = `${system}\n\n${user}`;
+    const out = await proxyAdapter.generate({ prompt: combined, model, maxTokens });
+    return (out || '').trim();
+  }
   // If HF API key is present and adapter loaded, use it
   if (process.env.HF_API_KEY && hfAdapter) {
     const combined = `${system}\n\n${user}`;
