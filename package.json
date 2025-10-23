@@ -1,6 +1,6 @@
 {
   "name": "commitsent",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Generate professional, semantic commit messages from your git diff using LLMs (OpenRouter/OpenAI).",
   "bin": {
     "commitsense": "bin/commitsense",
