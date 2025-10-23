@@ -1,20 +1,21 @@
 {
-  "name": "commitsence",
+  "name": "commitsent",
   "version": "0.1.1",
   "description": "Generate professional, semantic commit messages from your git diff using LLMs (OpenRouter/OpenAI).",
   "bin": {
-    "commitsense": "bin/commitsense"
+    "commitsense": "bin/commitsense",
+    "commitsent": "bin/commitsense"
   },
   "author": "Favour Idowu",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/favouridowu02/commitsense.git"
+    "url": "git+https://github.com/Favouridowu02/commitsent.git"
   },
   "bugs": {
-    "url": "https://github.com/favouridowu02/commitsense/issues"
+    "url": "https://github.com/Favouridowu02/commitsent/issues"
   },
-  "homepage": "https://github.com/favouridowu02/commitsense#readme",
+  "homepage": "https://github.com/Favouridowu02/commitsent#readme",
   "keywords": [
     "git",
     "commit",

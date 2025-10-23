@@ -7,7 +7,7 @@ const openaiClient = require('./openai');
 
 // Constants
 const MAX_DIFF_CHARS = 60_000;
-const DEFAULT_MODEL = process.env.COMMITSENSE_MODEL || 'gpt-4o-mini';
+const DEFAULT_MODEL = process.env.COMMITSENT_MODEL || 'gpt-4o-mini';
 
 // Small helpers
 const clamp = (num, min, max, dflt) => {
@@ -54,7 +54,7 @@ async function run() {
     const staged = argv.staged || false;
 
     if (!isInGitRepo()) {
-      console.error('Not a git repository. Run commitsense from the root of a git repository.');
+      console.error('Not a git repository. Run commitsent from the root of a git repository.');
       process.exit(1);
     }
 

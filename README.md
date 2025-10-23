@@ -1,6 +1,6 @@
 <div align="center">
 
-# commitsense
+# commitsent
 
 Generate professional, semantic git commit messages from your git diff using LLMs.
 
@@ -11,13 +11,13 @@ Generate professional, semantic git commit messages from your git diff using LLM
 Use without installing (recommended):
 
 ```powershell
-npx commitsense
+npx commitsent
 ```
 
 Or install globally:
 
 ```powershell
-npm i -g commitsense
+npm i -g commitsent
 ```
 
 ## Requirements
@@ -30,20 +30,20 @@ npm i -g commitsense
 Run in your repo with changes:
 
 ```powershell
-npx commitsense --conventional --emoji --model gpt-4o-mini
+npx commitsent --conventional --emoji --model gpt-4o-mini
 ```
 
 For staged changes only:
 
 ```powershell
 git add .
-npx commitsense --staged --conventional --emoji
+npx commitsent --staged --conventional --emoji
 ```
 
 Commit automatically:
 
 ```powershell
-npx commitsense --conventional --emoji --commit
+npx commitsent --conventional --emoji --commit
 ```
 
 ## Options
@@ -63,15 +63,15 @@ npx commitsense --conventional --emoji --commit
 
 - Unstaged changes:
 	```powershell
-	npx commitsense
+	npx commitsent
 	```
 - Staged only + Conventional + Emoji:
 	```powershell
-	npx commitsense --staged --conventional --emoji
+	npx commitsent --staged --conventional --emoji
 	```
 - Auto-commit with model:
 	```powershell
-	npx commitsense --commit --model gpt-4o-mini
+	npx commitsent --commit --model gpt-4o-mini
 	```
 
 ## Security

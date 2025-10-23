@@ -36,7 +36,7 @@ try {
 
 function buildPrompt({ diff, conventional, emoji }) {
   const lines = [];
-  lines.push('You are CommitSense, an assistant that generates professional, concise git commit messages from a git diff.');
+  lines.push('You are CommitSent, an assistant that generates professional, concise git commit messages from a git diff.');
   lines.push('Requirements:');
   lines.push('- Produce a single-line commit message.');
   lines.push('- Prefer Conventional Commits format if requested (type(scope): subject).');
@@ -57,10 +57,10 @@ function buildPrompt({ diff, conventional, emoji }) {
 }
 
 async function suggestCommit({ diff, conventional = false, emoji = false, model = 'gpt-4o-mini', maxTokens = 100, temperature = 0.2 }) {
-  const system = `You are CommitSense, an assistant that generates a single-line git commit message from a git diff.`;
+  const system = `You are CommitSent, an assistant that generates a single-line git commit message from a git diff.`;
   const user = buildPrompt({ diff, conventional, emoji });
   // If a hosted proxy is configured, use it first (no keys required by end user)
-  if (process.env.COMMITSENSE_PROXY_URL && proxyAdapter) {
+  if ((process.env.COMMITSENT_PROXY_URL || process.env.COMMITSENSE_PROXY_URL) && proxyAdapter) {
     const combined = `${system}\n\n${user}`;
     const out = await proxyAdapter.generate({ prompt: combined, model, maxTokens });
     return (out || '').trim();

@@ -1,6 +1,6 @@
 async function generate({ prompt, model, maxTokens = 100 }) {
-  const url = process.env.COMMITSENSE_PROXY_URL;
-  if (!url) throw new Error('COMMITSENSE_PROXY_URL is not set');
+  const url = process.env.COMMITSENT_PROXY_URL || process.env.COMMITSENSE_PROXY_URL;
+  if (!url) throw new Error('COMMITSENT_PROXY_URL is not set');
 
   if (typeof prompt !== 'string' || !prompt.trim()) {
     throw new Error('Invalid prompt');
@@ -13,7 +13,7 @@ async function generate({ prompt, model, maxTokens = 100 }) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...(process.env.COMMITSENSE_PROXY_AUTH ? { Authorization: `Bearer ${process.env.COMMITSENSE_PROXY_AUTH}` } : {})
+  ...(process.env.COMMITSENT_PROXY_AUTH || process.env.COMMITSENSE_PROXY_AUTH ? { Authorization: `Bearer ${process.env.COMMITSENT_PROXY_AUTH || process.env.COMMITSENSE_PROXY_AUTH}` } : {})
       },
       body: JSON.stringify({ prompt, model, maxTokens }),
       signal: controller.signal
